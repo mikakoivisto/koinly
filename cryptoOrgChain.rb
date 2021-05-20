@@ -84,6 +84,5 @@ CSV.open("cryptoorg-chain-#{account}-koinly.csv", 'wb') {
       else
         break
       end
-    end  
-    #rows.each{|row| csv << row}
+    end
 }
