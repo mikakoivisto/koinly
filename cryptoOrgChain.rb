@@ -30,12 +30,12 @@ CSV.open("cryptoorg-chain-#{account}-koinly.csv", 'wb') {
         next if msgType == "MsgBeginRedelegate"
         txdate = DateTime.parse(tx["blockTime"]).strftime("%Y-%m-%d %H:%M:%S") # YYYY-MM-DD HH:mm:ss
         txhash = tx["hash"]
-        fee = (BigDecimal.new(tx["fee"][0]["amount"]) / basecro).to_s("F")
+        fee = (BigDecimal.new(tx["fee"][0]["amount"]) / basecro)
         amountElem = tx["messages"][0]["content"]["amount"]
         if (amountElem.class == Array)
-          amount = (BigDecimal.new(amountElem[0]["amount"])/basecro).to_s("F")
+          amount = (BigDecimal.new(amountElem[0]["amount"])/basecro)
         else
-          amount = (BigDecimal.new(amountElem["amount"])/basecro).to_s("F")
+          amount = (BigDecimal.new(amountElem["amount"])/basecro)
         end
         toAddress = tx["messages"][0]["content"]["toAddress"]
         fromAddress = tx["messages"][0]["content"]["fromAddress"]
@@ -50,24 +50,26 @@ CSV.open("cryptoorg-chain-#{account}-koinly.csv", 'wb') {
         description = ""
 
         if (toAddress == account && msgType == "MsgSend")
-          receivedAmount = amount
+          receivedAmount = amount.to_s("F")
           receivedCurrency = "CRO"
           description = "Received from #{fromAddress}"
         elsif (toAddress != account && msgType == "MsgSend")
-          sentAmount = amount
+          sentAmount = (amount - fee).to_s("F")
           sentCurrency = "CRO"
           feeAmount = fee
           feeCurrency = "CRO"
           description = "Sent to #{toAddress}"
         elsif (msgType == "MsgWithdrawDelegatorReward")
-          receivedAmount = amount
+          receivedAmount = (amount - fee).to_s("F")
           receivedCurrency = "CRO"
+          feeAmount = fee.to_s("F")
+          feeCurrency = "CRO"
           label = "staking"
           description = "Staking reward from validator #{validatorAddress}"
         elsif (msgType == "MsgDelegate")
-          sentAmount = amount
+          sentAmount = (amount - fee).to_s("F")
           sentCurrency = "CRO"
-          feeAmount = fee
+          feeAmount = fee.to_s("F")
           feeCurrency = "CRO"
           description = "Delegating to validator #{validatorAddress}"
         end
