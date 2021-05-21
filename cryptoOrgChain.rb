@@ -27,7 +27,7 @@ CSV.open("cryptoorg-chain-#{account}-koinly.csv", 'wb') {
       result.each do |tx|
         next unless tx["success"]
         msgType = tx["messages"][0]["type"]
-        next if msgType == "MsgBeginRedelegate"
+        #next if msgType == "MsgBeginRedelegate"
         txdate = DateTime.parse(tx["blockTime"]).strftime("%Y-%m-%d %H:%M:%S") # YYYY-MM-DD HH:mm:ss
         txhash = tx["hash"]
         fee = (BigDecimal.new(tx["fee"][0]["amount"]) / basecro)
@@ -40,6 +40,8 @@ CSV.open("cryptoorg-chain-#{account}-koinly.csv", 'wb') {
         toAddress = tx["messages"][0]["content"]["toAddress"]
         fromAddress = tx["messages"][0]["content"]["fromAddress"]
         validatorAddress = tx["messages"][0]["content"]["validatorAddress"]
+        validatorSrcAddress = tx["messages"][0]["content"]["validatorSrcAddress"]
+        validatorDstAddress = tx["messages"][0]["content"]["validatorDstAddress"]
         sentAmount = ""
         sentCurrency = ""
         receivedAmount = ""
@@ -72,6 +74,12 @@ CSV.open("cryptoorg-chain-#{account}-koinly.csv", 'wb') {
           feeAmount = fee.to_s("F")
           feeCurrency = "CRO"
           description = "Delegating to validator #{validatorAddress}"
+        elsif (msgType == "MsgBeginRedelegate")
+          sentAmount = (amount - fee).to_s("F")
+          sentCurrency = "CRO"
+          feeAmount = fee.to_s("F")
+          feeCurrency = "CRO"
+          description = "Redelegating to validator #{validatorDstAddress} from #{validatorSrcAddress}"
         end
         row = [txdate, sentAmount, sentCurrency, receivedAmount, receivedCurrency, feeAmount, feeCurrency, "", "", label, description, txhash]  
         csv << row
